@@ -3,6 +3,12 @@ from PIL import Image
 from pandas.io.parsers import read_csv
 from utils import outliers_filter
 
+# -------------------------------------------------------------------------------
+# These Script reads the HuPBA AGE data in csv format (votes and pictures tables)
+# and creates an specular image from all the images filtering by number of votes
+# and creates a csv file with the information of the real age and apparent age.
+# -------------------------------------------------------------------------------
+
 # GLOBAL VARIABLES
 path_fl = '../../Databases/Aging DB/AGE HuPBA/HuPBA_AGE_data.csv'
 path_fl_votes = '../../Databases/Aging DB/AGE HuPBA/votes_data.csv'
