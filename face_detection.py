@@ -1,6 +1,7 @@
 import cv2
 import numpy as np
 
+
 def detect(im_path, casc_paths):
     """
     Detect faces using a cascade xml file in an image
@@ -17,17 +18,21 @@ def detect(im_path, casc_paths):
     cascade4 = cv2.CascadeClassifier(casc_paths[3])
     cascade5 = cv2.CascadeClassifier(casc_paths[4])
 
-    rects = cascade1.detectMultiScale(img, 1.3, 4, cv2.cv.CV_HAAR_SCALE_IMAGE, (20, 20))
-    np.append(rects, cascade2.detectMultiScale(img, 1.3, 4, cv2.cv.CV_HAAR_SCALE_IMAGE, (20, 20)))
-    np.append(rects, cascade3.detectMultiScale(img, 1.3, 4, cv2.cv.CV_HAAR_SCALE_IMAGE, (20, 20)))
-    np.append(rects, cascade4.detectMultiScale(img, 1.3, 4, cv2.cv.CV_HAAR_SCALE_IMAGE, (20, 20)))
-    np.append(rects, cascade5.detectMultiScale(img, 1.3, 4, cv2.cv.CV_HAAR_SCALE_IMAGE, (20, 20)))
+    rects = cascade1.detectMultiScale(img, 1.4, 4, cv2.cv.CV_HAAR_SCALE_IMAGE, (20, 20))
 
+    if len(rects) == 0:
+        rects = cascade2.detectMultiScale(img, 1.4, 4, cv2.cv.CV_HAAR_SCALE_IMAGE, (20, 20))
+        if len(rects) == 0:
+            rects = cascade5.detectMultiScale(img, 1.4, 4, cv2.cv.CV_HAAR_SCALE_IMAGE, (20, 20))
+            if len(rects) == 0:
+                rects = cascade3.detectMultiScale(img, 1.4, 4, cv2.cv.CV_HAAR_SCALE_IMAGE, (20, 20))
+                if len(rects) == 0:
+                    rects = cascade4.detectMultiScale(img, 1.4, 4, cv2.cv.CV_HAAR_SCALE_IMAGE, (20, 20))
+        
     if len(rects) == 0:
         return [], img
     rects[:, 2:] += rects[:, :2]
 
-    # filt_rects = []
     max_sz = 0
     face = []
     for r in range(len(rects)):
@@ -35,9 +40,6 @@ def detect(im_path, casc_paths):
             if abs(rects[r][0] - rects[r][2]) > max_sz:
                 max_sz = abs(rects[r][0] - rects[r][2])
                 face = [rects[r]]
-            # filt_rects.append(rects[r])
-
-    # filt_rects = [[450, 450, 500, 500]]
 
     return face, img
 
@@ -60,6 +62,7 @@ with open(images_path) as f:
     for i in range(len(content)):
         aux = content[i].split(',')
         impath = aux[2]
+        print impath
 
         rects, img = detect('../../Databases/Aging DB/AGE HuPBA/extended/' + impath, cascpaths)
         box(rects, img, 'images/face_detect/face_%i.png' % i)
