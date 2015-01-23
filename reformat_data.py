@@ -4,7 +4,7 @@ from pandas.io.parsers import read_csv
 from utils import outliers_filter
 
 # -------------------------------------------------------------------------------
-# These Script reads the HuPBA AGE data in csv format (votes and pictures tables)
+# These script reads the HuPBA AGE data in csv format (votes and pictures tables)
 # and creates an specular image from all the images filtering by number of votes
 # and creates a csv file with the information of the real age and apparent age.
 # -------------------------------------------------------------------------------
@@ -47,7 +47,7 @@ with open(path_new_fl, 'w') as f:
 
             # Rename the image in the csv and write it
             new_name = 'image_%s.png' % i
-            aux[1] = new_name
+            aux[2] = new_name
             aux[4] = str(apparent_age[-1])
             new_l = ','.join(aux)
             f.write(new_l)
