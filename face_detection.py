@@ -1,5 +1,83 @@
+import sys
 import cv2
 import numpy as np
+from PyQt5.QtCore import *
+from PyQt5.QtWidgets import *
+from PyQt5.QtGui import *
+
+
+class Main(QMainWindow):
+
+    def __init__(self, parent=None):
+        QMainWindow.__init__(self, parent)
+
+        self.count_img = 0
+        self.count_pos = 0
+        self.img_path = 'images/face_detect/'
+        self.img_name = 'face_0.png'
+
+        self.initUI()
+
+    def nex_img(self):
+        img_name = self.img_name
+        aux = img_name.split('.')
+        aux2 = aux[0].split('_')
+
+        img_num = str(int(aux2[1]) + 1)
+        aux2[1] = img_num
+
+        aux[0] = '_'.join(aux2)
+        self.img_name = '.'.join(aux)
+
+        self.setWindowBackgroud(self.img_path + self.img_name)
+
+    def keyPressEvent(self, e):
+        if e.key() == Qt.Key_Escape:
+            self.close()
+        if e.text() == 'y':
+            self.count_img += 1
+            self.count_pos += 1
+            print self.count_pos / float(self.count_img)
+
+            self.nex_img()
+
+        if e.text() == 'n':
+            self.count_img += 1
+            print self.count_pos / float(self.count_img)
+
+            self.nex_img()
+
+    def setWindowBackgroud(self, path):
+        p = QPalette()
+        pixmap = QPixmap(path)
+        pixmap = pixmap.scaledToWidth(self.width())
+        pixmap = pixmap.scaledToHeight(self.height())
+        brush = QBrush(Qt.white, pixmap)
+
+        p.setBrush(QPalette.Active, QPalette.Window, brush)
+        p.setBrush(QPalette.Inactive, QPalette.Window, brush)
+        p.setBrush(QPalette.Disabled, QPalette.Window, brush)
+        self.setPalette(p)
+        self.show()
+
+    def initUI(self):
+
+        # x and y coordinates on the screen, width, height
+        self.setGeometry(100, 100, 500, 500)
+
+        self.setWindowTitle("Detected Faces")
+        self.setWindowBackgroud(self.img_path + self.img_name)
+        self.show()
+
+
+def main():
+
+    app = QApplication(sys.argv)
+
+    main = Main()
+    main.show()
+
+    sys.exit(app.exec_())
 
 
 def detect(im_path, casc_paths, max_rect):
@@ -79,21 +157,29 @@ def box(rects, img, img_name):
         cv2.rectangle(img, (x1, y1), (x2, y2), (127, 255, 0), 2)
     cv2.imwrite(img_name, img)
 
-cascpaths = ['data/cascade.xml',
-             'data/haarcascade_frontal_default.xml',
-             'data/haarcascade_frontal_alt.xml',
-             'data/haarcascade_frontal_alt2.xml',
-             'data/haarcascade_profileface.xml',
-             'data/haarcascade_eye.xml']
-images_path = '../../Databases/Aging DB/AGE HuPBA/HuPBA_AGE_data_extended.csv'
 
-with open(images_path) as f:
-    content = f.readlines()
+if __name__ == '__main__':
+    if sys.argv[1] == 'accuracy':
+        # Calculate accuracy of the face detector
+        main()  # Accuracy 81.05%
 
-    for i in range(len(content)):
-        aux = content[i].split(',')
-        impath = aux[2]
-        print impath
+    if sys.argv[1] == 'detect':
+        # Run Face detector
+        cascpaths = ['data/cascade.xml',
+                     'data/haarcascade_frontal_default.xml',
+                     'data/haarcascade_frontal_alt.xml',
+                     'data/haarcascade_frontal_alt2.xml',
+                     'data/haarcascade_profileface.xml',
+                     'data/haarcascade_eye.xml']
+        images_path = '../../Databases/Aging DB/AGE HuPBA/HuPBA_AGE_data_extended.csv'
 
-        rects, img = detect('../../Databases/Aging DB/AGE HuPBA/extended/' + impath, cascpaths, 10)
-        box(rects, img, 'images/face_detect/face_%i.png' % i)
+        with open(images_path) as f:
+            content = f.readlines()
+
+            for i in range(len(content)):
+                aux = content[i].split(',')
+                impath = aux[2]
+                print impath
+
+                rects, img = detect('../../Databases/Aging DB/AGE HuPBA/extended/' + impath, cascpaths, 10)
+                box(rects, img, 'images/face_detect/face_%i.png' % i)
