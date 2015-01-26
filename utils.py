@@ -53,7 +53,10 @@ def acc_score(est, x, y):
     :return: Accuracy
     """
     y_ = est.predict(x)
-    return sum([1 for i in range(len(y_)) if y_[i] == y[i]])/float(len(y))
+    if type(y) == list:
+        return sum([1 for i in range(len(y_)) if y_[i] == y[i]])/float(len(y_))
+    else:
+        return sum([1 for i in range(len(y_)) if y_[i] == y])
 
 
 def do_pca(x, var, name):
@@ -94,30 +97,51 @@ def outliers_filter(v, margin):
     return [item for item in v if abs(item - median) <= margin]
 
 
-def load_data(dataset_name):
+def load_data(dataset_name, type_label='apparent'):
     """
     Load Data
     """
     if dataset_name == 'FGNET':
-        y = np.genfromtxt('data/FGNET_Y.csv', delimiter=',')
-
-        aux = np.genfromtxt('../../Databases/Aging DB/FGNET/ages.csv', delimiter=',', usecols=(0, 1, 3))
-        gender = aux[:, 2]
-        ind = aux[:, 1]
-
-        if not os.path.exists('data/FGNET_pca_0.95_X.csv') and not os.path.exists('data/FGNET_pca_0.95_shapes.csv'):
-            x = np.genfromtxt('data/FGNET_X.csv', delimiter=',')
-            shapes = np.genfromtxt('data/FGNET_shapes.csv', delimiter=',')
-
-            # Normalize and dimensionality reduction
-            proj_x = do_pca(x, 0.95, 'data/FGNET_pca_0.95_X.csv')
-            proj_sh = do_pca(shapes, 0.95, 'data/FGNET_pca_0.95_shapes.csv')
-        else:
-            proj_x = np.genfromtxt('data/FGNET_pca_0.95_X.csv', delimiter=',')
-            proj_sh = np.genfromtxt('data/FGNET_pca_0.95_shapes.csv', delimiter=',')
+        path = 'data/FG-NET/'
+        path_csv = '../../Databases/Aging DB/FGNET/ages.csv'
+        has_gender = True
+        has_ind = True
     elif dataset_name == 'HuPBA':
-        pass
+        path = 'data/HuPBA/'
+        path_csv = '../../Databases/Aging DB/AGE HuPBA/HuPBA_AGE_data_extended.csv'
+        has_gender = False
+        has_ind = False
     else:
         raise NameError('Dataset %s not found.' % dataset_name)
+
+    y = np.genfromtxt(path + dataset_name + '_Y.csv', delimiter=',')
+
+    if type_label == 'real':
+        y = y[:, 0]
+    elif type_label == 'apparent':
+        y = y[:, 1]
+    else:
+        raise NameError('The type of label must be "real" or "apparent"')
+
+    aux = np.genfromtxt(path_csv, delimiter=',', usecols=(0, 1, 3))
+    if has_gender:
+        gender = aux[:, 2]
+    else:
+        gender = []
+    if has_ind:
+        ind = aux[:, 1]
+    else:
+        ind = []
+
+    if not os.path.exists(path + dataset_name + '_pca_0.95_X.csv') and not os.path.exists(path + dataset_name + '_pca_0.95_shapes.csv'):
+        x = np.genfromtxt(path + dataset_name + '_X.csv', delimiter=',')
+        shapes = np.genfromtxt(path + dataset_name + '_shapes.csv', delimiter=',')
+
+        # Normalize and dimensionality reduction
+        proj_x = do_pca(x, 0.95, path + dataset_name + '_pca_0.95_X.csv')
+        proj_sh = do_pca(shapes, 0.95, path + dataset_name + '_pca_0.95_shapes.csv')
+    else:
+        proj_x = np.genfromtxt(path + dataset_name + '_pca_0.95_X.csv', delimiter=',')
+        proj_sh = np.genfromtxt(path + dataset_name + '_pca_0.95_shapes.csv', delimiter=',')
 
     return proj_x, y, proj_sh, gender, ind

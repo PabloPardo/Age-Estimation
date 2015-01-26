@@ -2,12 +2,19 @@ clc; clear all; close all;
 addpath(genpath('matlab-libraries/libsvm-3.18/matlab'));
 
 % Load Data
-load('data/FGNET_X.mat');
-load('data/FGNET_Y.mat');
-load('data/FGNET_shapes.mat')
-csvwrite('data/FGNET_shapes.csv', reshape(shapes, [size(shapes,1)*size(shapes,2)], size(shapes,3)));
-csvwrite('data/FGNET_X.csv', X);
-csvwrite('data/FGNET_Y.csv', Y);
+% load('data/FGNET_X.mat');
+% load('data/FGNET_Y.mat');
+% load('data/FGNET_shapes.mat')
+% csvwrite('data/FGNET_shapes.csv', reshape(shapes, [size(shapes,1)*size(shapes,2)], size(shapes,3)));
+% csvwrite('data/FGNET_X.csv', X);
+% csvwrite('data/FGNET_Y.csv', Y);
+
+load('data/HuPBA/HuPBA_X.mat');
+% load('data/HuPBA/HuPBA_Y.mat');
+% load('data/HuPBA/HuPBA_shapes.mat')
+% csvwrite('data/HuPBA/HuPBA_shapes.csv', reshape(shapes, [size(shapes,1)*size(shapes,2)], size(shapes,3)));
+csvwrite('data/HuPBA/HuPBA_X.csv', X);
+% csvwrite('data/HuPBA/HuPBA_Y.csv', Y);
 
 % Add shape coodinates to X features matrix
 shapes_vec = [];

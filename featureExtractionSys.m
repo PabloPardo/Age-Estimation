@@ -1,6 +1,6 @@
 disp('Loading paths ...');
-% addpath('data/');
-addpath(genpath('../Train/'), genpath('matlab-libraries/networkcodes'));
+addpath('data/');
+addpath(genpath('matlab-libraries/networkcodes'));
 
 %% SET BIF PARAMETERS
 disp('Setting parameeters ...');
@@ -55,20 +55,27 @@ while line~=-1
     
 %     Y(listPtr) = str2double(c{1});
 %     img = imread([path 'all_images_aligned/' c{3}]); % Read the image
-    img = imread([path 'extended_aligned/' c{2}]);
+    if exist([path 'extended_aligned/' c{3}], 'file') == 2 
+        img = imread([path 'extended_aligned/' c{3}]);
+    else
+        disp('Not finded');
+        line = fgetl(fileID);
+        toc(timerVal)
+        continue;
+    end
     
     %% Find BIF features
-    X(:,listPtr) = BIFextractor(img, param);
+    X(:,listPtr) = BIFextractor(img(:,:,1), param);
     
     % add new block of memory if needed
     listPtr = listPtr + 1;
     if( listPtr+(BLOCK_SIZE/100) > listSize )  % less than 1%*BLOCK_SIZE free slots
         X(:,listPtr:end,:) = [];
-        Y(listPtr:end) = [];
+%         Y(listPtr:end) = [];
 %         save('data/FGNET_X', 'X');
 %         save('data/X', 'X');
 %         save('data/Y', 'Y');
-        save('data/HuPBA_X', 'X');
+        save('data/HuPBA/HuPBA_X', 'X');
         
         listSize = listSize + BLOCK_SIZE;       % add new BLOCK_SIZE slots
         X(:,listPtr+1:listSize) = 0;

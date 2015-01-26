@@ -1,10 +1,10 @@
 addpath(genpath('matlab-libraries/3000fps - custom'));
 
 %% CREATE FACE DETECTORS
-disp('Creating face detectors ...');
-import vision.*;
-detector1 = vision.CascadeObjectDetector('data/cascade.xml');
-detector2 = vision.CascadeObjectDetector();
+% disp('Creating face detectors ...');
+% import vision.*;
+% detector1 = vision.CascadeObjectDetector('data/cascade.xml');
+% detector2 = vision.CascadeObjectDetector();
 
 %% LOAD SHAPE MODEL
 disp('Loading shape model ...');
@@ -14,7 +14,7 @@ load('data/model68.mat');
 disp('Reading data ...');
 % HuPBA database
 path = '../../Databases/Aging DB/AGE HuPBA/';
-fileID = fopen([path 'HuPBA_AGE_data.csv']);
+fileID = fopen([path 'HuPBA_AGE_data_extended.csv']);
 
 % FGNET database
 % path = '../../Databases/Aging DB/FGNET/';
@@ -49,16 +49,24 @@ while line~=-1
     % Store the age
 %     Y(listPtr) = str2double(c{2});      % FERET
 %     Y(listPtr) = str2double(c{1});      % FG-NET
-    Y(listPtr, 1) = str2double(c{3});   % HuPBA AGE - Real Age
-    Y(listPtr, 2) = str2double(c{4});   % HuPBA AGE - Apparet Age
+    Y(listPtr, 1) = str2double(c{4});   % HuPBA AGE - Real Age
+    Y(listPtr, 2) = str2double(c{5});   % HuPBA AGE - Apparet Age
     
     % Read the image
-%     img = imread(c{3});                     % FERET 
-%     img = imread([path 'all_img/' c{3}]);   % FG-NET
-    img = imread([path 'extended/' c{2}]);  % HuPBA AGE
+    if exist(['images/face_detect/' c{3}], 'file') == 2
+%         img = imread(c{3});                     % FERET 
+%         img = imread([path 'all_img/' c{3}]);   % FG-NET
+        img = imread(['images/face_detect/' c{3}]);  % HuPBA AGE
+        disp(c{3});
+    else
+        disp('Not finded');
+        line = fgetl(fileID);
+        toc(timerVal)
+        continue;
+    end
     
     %% Detect face in the image and crop
-    face = detectface(img, margin, detector1, detector2);
+%     face = detectface(img, margin, detector1, detector2);
 %     [img, shape] = FGNETface(img, [path 'all_img/' c{3}]);
 %     if isempty(face)
 %         line = fgetl(fileID);
@@ -66,20 +74,21 @@ while line~=-1
 %     end
         
     % Crop the image by the found coordinates
-    img = imresize(imcrop(img, face), [200,200]);
+%     img = imresize(imcrop(img, face), [200,200]);
+    img = imresize(img, [200,200]);
     
     %% Find facial landmarks
-    shape = fastFacealign_test(model, double(img)/255);
+    shape = fastFacealign_test(shapeRegressor, double(img)/255);
     
     %% Align Face
-    [rot_image, rot_shape] = alignface(img, 42, 48, 31, shape);     % FERET & HuPBA AGE
+    [rot_image, rot_shape] = alignface(img, 42, 48, 31, shape(:,:,1));     % FERET & HuPBA AGE
 %     [rot_image, rot_shape] = alignface(img, 32, 37, 68, shape);   % FG-NET
     shapes(:,:,listPtr) = rot_shape;
 
     %% Save image
 %     imwrite(rot_image, strcat('../', strrep(c{3}, 'Original', 'Aligned')), 'jpg');  % FERET
 %     imwrite(rot_image, strcat(path, 'all_images_aligned/', c{3}), 'jpg');           % FG-NET
-    imwrite(rot_image, [path 'extended_aligned/' c{2}], 'jpg');                     % HuPBA AGE
+    imwrite(rot_image, [path 'extended_aligned/' c{3}], 'png');                     % HuPBA AGE
 
     % add new block of memory if needed
     listPtr = listPtr + 1;
@@ -89,10 +98,10 @@ while line~=-1
         Y(listPtr+1:listSize,:) = 0;            % HuPBA AGE
         shapes(:,:,listPtr+1:listSize) = 0;
 %         save('data/shapes', 'shapes');          % FERET
-%         save('data/FGNET_shapes', 'shapes');    % FG-NET
-%         save('data/FGNET_Y', 'Y');              % FG-NET
-        save('data/HuPBA_shapes', 'shapes');    % HuPBA AGE  
-        save('data/HuPBA_Y', 'Y');              % HuPBA AGE
+%         save('data/FG-NET/FGNET_shapes', 'shapes');    % FG-NET
+%         save('data/FG-NET/FGNET_Y', 'Y');              % FG-NET
+        save('data/HuPBA/HuPBA_shapes', 'shapes');    % HuPBA AGE  
+        save('data/HuPBA/HuPBA_Y', 'Y');              % HuPBA AGE
     end
   
     line = fgetl(fileID);
@@ -106,7 +115,7 @@ shapes(:,:,listPtr:end) = [];
 
 % save('data/Y', 'Y');                    % FERET
 % save('data/shapes', 'shapes');          % FERET
-% save('data/FGNET_Y', 'Y');              % FG-NET
-% save('data/FGNET_shapes', 'shapes');    % FG-NET
-save('data/HuPBA_shapes', 'shapes');    % HuPBA AGE  
-save('data/HuPBA_Y', 'Y');              % HuPBA AGE
+% save('data/FG-NET/FGNET_Y', 'Y');              % FG-NET
+% save('data/FG-NET/FGNET_shapes', 'shapes');    % FG-NET
+save('data/HuPBA/HuPBA_shapes', 'shapes');    % HuPBA AGE  
+save('data/HuPBA/HuPBA_Y', 'Y');              % HuPBA AGE

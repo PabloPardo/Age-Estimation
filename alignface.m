@@ -26,7 +26,7 @@ function [ rot_image, rot_shape ] = alignface( img, eyel, eyer, nose, shape)
             if new_idx(1) > 0 && new_idx(2) > 0  && ...
                     new_idx(1) <= size(img,1) && ...
                     new_idx(2) <= size(img,2)
-                rot_image(i,j) = img(new_idx(1), new_idx(2));
+                rot_image(i,j,:) = img(new_idx(1), new_idx(2),:);
             end
         end
     end

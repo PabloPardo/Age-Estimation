@@ -6,20 +6,30 @@ import codecs
 sys.stdout = codecs.getwriter('utf-8')(sys.stdout)
 
 # Load data
-x, y, shapes, gender, ind = load_data(dataset_name='FGNET')
+dataset_name = 'HuPBA'
+x, y, shapes, gender, ind = load_data(dataset_name=dataset_name, type_label='apparent')
+
+# train_methodology = 'Leave One Person Out'
+train_methodology = 'Leave One Out'
 
 # Joint BIF features with shape features
 x = np.concatenate((x, shapes), axis=1)
 
 mae = []
 cum = []
-for i in set(ind):
-    print '------------------- LOPO loop: {0}/{1} -------------------'.format(i, max(ind))
+loop_iter = set(ind) if len(ind) > 0 else range(len(x))
+for i in loop_iter:
     time_el = time.time()
-    train_idx = [j for j in range(len(x)) if not ind[j] == i]
-    test_idx = [j for j in range(len(x)) if ind[j] == i]
-
-    ind_tr = [j for j in ind if j != i]
+    if len(ind) > 0:
+        print '------------------- {0} loop: {1}/{2} -------------------'.format(train_methodology, i, max(ind))
+        train_idx = [j for j in range(len(x)) if not ind[j] == i]
+        test_idx = [j for j in range(len(x)) if ind[j] == i]
+        ind_tr = [j for j in ind if j != i]
+    else:
+        print '------------------- {0} loop: {1}/{2} -------------------'.format(train_methodology, i, len(x))
+        train_idx = [j for j in range(len(x)) if not j == i]
+        test_idx = i
+        ind_tr = []
 
     x_tr = x[train_idx]
     y_tr = y[train_idx]
@@ -124,5 +134,5 @@ for i in set(ind):
     time_el = time.time() - time_el
     print u'\n\n-----------\nTest MAE: {0} - Test mean MAE: {1} \u00B1 {2} - time: {3}\n-----------'.format(mae[-1], np.mean(mae), np.std(mae), time_el)
 
-cum_score(name='images/FGNET_cum_score.png', cum_score=np.mean(cum, axis=0))
+cum_score(name='images/%s_cum_score.png' % dataset_name, cum_score=np.mean(cum, axis=0))
 print u'\n\n-------- MAE = {0} \u00B1 {1} --------'.format(np.mean(mae), np.std(mae))

@@ -18,8 +18,12 @@ def validate(x, y, estimator, ind, i, evel_func):
     :param evel_func: Evaluation Function
     :return: Score
     """
-    train_idx = [j for j in range(len(x)) if not ind[j] == i]
-    test_idx = [j for j in range(len(x)) if ind[j] == i]
+    if len(ind) > 0:
+        train_idx = [j for j in range(len(x)) if not ind[j] == i]
+        test_idx = [j for j in range(len(x)) if ind[j] == i]
+    else:
+        train_idx = [j for j in range(len(x)) if not j == i]
+        test_idx = i
 
     # Train Estimator
     estimator.fit(x[train_idx], y[train_idx])
@@ -31,7 +35,7 @@ def validate(x, y, estimator, ind, i, evel_func):
 def group_class_lopo(x, y, ind, **kwargs):
     print 'Age group Classification ...'
     # Get group labels
-    age_bins = [15, 40, 70]
+    age_bins = [15, 40, 100]
     y_gr = group_y(y, age_bins)
 
     # Parameter Search
@@ -47,7 +51,10 @@ def group_class_lopo(x, y, ind, **kwargs):
         svc = svm.SVC(kernel='linear', C=c)
 
         # Leave One Person Out (LOPO)
-        acc = Parallel(n_jobs=8)(delayed(validate)(x, y_gr, svc, ind, i, acc_score) for i in set(ind))
+        if len(ind) > 0:
+            acc = Parallel(n_jobs=8, verbose=5)(delayed(validate)(x, y_gr, svc, ind, i, acc_score) for i in set(ind))
+        else:
+            acc = Parallel(n_jobs=8, verbose=5)(delayed(validate)(x, y_gr, svc, ind, i, acc_score) for i in range(len(x)))
 
         if not np.mean(acc) <= best_acc:
             best_acc = np.mean(acc)
@@ -82,7 +89,10 @@ def reg_group_lopo(x, y, ind, rang, **kwargs):
         svr = svm.SVR(kernel='rbf', C=c, gamma=g)
 
         # Leave One Person Out (LOPO)
-        mae = Parallel(n_jobs=8)(delayed(validate)(x, y, svr, ind, i, mae_score) for i in set(ind))
+        if len(ind) > 0:
+            mae = Parallel(n_jobs=8, verbose=5)(delayed(validate)(x, y, svr, ind, i, mae_score) for i in set(ind))
+        else:
+            mae = Parallel(n_jobs=8, verbose=5)(delayed(validate)(x, y, svr, ind, i, mae_score) for i in range(len(x)))
 
         if not np.mean(mae) >= best_mae:
             best_mae = np.mean(mae)

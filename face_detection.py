@@ -1,5 +1,6 @@
 import sys
 import cv2
+import glob
 import numpy as np
 from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
@@ -8,28 +9,19 @@ from PyQt5.QtGui import *
 
 class Main(QMainWindow):
 
-    def __init__(self, parent=None):
+    def __init__(self, images_names, parent=None):
         QMainWindow.__init__(self, parent)
 
         self.count_img = 0
         self.count_pos = 0
-        self.img_path = 'images/face_detect/'
-        self.img_name = 'face_0.png'
+        self.img_names = images_names
+        self.img_name = images_names[0]
 
         self.initUI()
 
     def nex_img(self):
-        img_name = self.img_name
-        aux = img_name.split('.')
-        aux2 = aux[0].split('_')
-
-        img_num = str(int(aux2[1]) + 1)
-        aux2[1] = img_num
-
-        aux[0] = '_'.join(aux2)
-        self.img_name = '.'.join(aux)
-
-        self.setWindowBackgroud(self.img_path + self.img_name)
+        self.img_name = self.img_names[self.count_img]
+        self.setWindowBackgroud(self.img_name)
 
     def keyPressEvent(self, e):
         if e.key() == Qt.Key_Escape:
@@ -66,15 +58,17 @@ class Main(QMainWindow):
         self.setGeometry(100, 100, 500, 500)
 
         self.setWindowTitle("Detected Faces")
-        self.setWindowBackgroud(self.img_path + self.img_name)
+        self.setWindowBackgroud(self.img_name)
         self.show()
 
 
 def main():
 
+    images = glob.glob("images/face_detect/*.png")
+
     app = QApplication(sys.argv)
 
-    main = Main()
+    main = Main(images)
     main.show()
 
     sys.exit(app.exec_())
@@ -152,10 +146,18 @@ def detect(im_path, casc_paths, max_rect):
     return [face], img
 
 
-def box(rects, img, img_name):
+def box(rects, img, img_name, margin):
     for x1, y1, x2, y2 in rects:
-        cv2.rectangle(img, (x1, y1), (x2, y2), (127, 255, 0), 2)
-    cv2.imwrite(img_name, img)
+        # cv2.rectangle(img, (x1, y1), (x2, y2), (127, 255, 0), 2)
+        x1 = max(0, x1 - margin)
+        x2 = min(img.shape[1], x2 + margin)
+
+        y1 = max(0, y1 - margin)
+        y2 = min(img.shape[0], y2 + margin)
+
+        crop_img = img[y1:y2, x1:x2]
+    if 'crop_img' in locals():
+        cv2.imwrite(img_name, crop_img)
 
 
 if __name__ == '__main__':
@@ -182,4 +184,4 @@ if __name__ == '__main__':
                 print impath
 
                 rects, img = detect('../../Databases/Aging DB/AGE HuPBA/extended/' + impath, cascpaths, 10)
-                box(rects, img, 'images/face_detect/face_%i.png' % i)
+                box(rects, img, 'images/face_detect/' + impath, 20)

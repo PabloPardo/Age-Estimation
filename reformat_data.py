@@ -26,9 +26,9 @@ with open(path_fl) as f:
 # Read Votes
 votes = read_csv(path_fl_votes)
 votes_hist = {}
-for i in set(votes['id_pic'].values):
+for i in set(votes['pic_id'].values):
     # Filter outliers
-    votes_hist['%i' % i] = outliers_filter(votes.query('id_pic == %i' % i)['vote'].values, margin=margin_outliers)
+    votes_hist['%i' % i] = outliers_filter(votes.query('pic_id == %i' % i)['vote'].values, margin=margin_outliers)
 
 # Cut off the pictures with less votes than 'min_num_votes'
 votes_hist = {k: v for k, v in votes_hist.items() if len(v) >= min_num_votes}
@@ -40,7 +40,7 @@ with open(path_new_fl, 'w') as f:
         l = content[i]
         aux = l.split(',')
 
-        if aux[0] in votes_hist:
+        if aux[0] in votes_hist and int(aux[-2]) == 1:
             real_age.append(int(aux[3]))
             apparent_age.append(round(np.mean(votes_hist[aux[0]])))
             im = aux[2].decode('latin_1')
@@ -54,7 +54,7 @@ with open(path_new_fl, 'w') as f:
 
             # Add the specular image in the csv
             new_name_spec = 'image_%s_spec.png' % i
-            aux[1] = new_name_spec
+            aux[2] = new_name_spec
             new_l_spec = ','.join(aux)
             f.write(new_l_spec)
 
