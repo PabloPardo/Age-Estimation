@@ -53,7 +53,7 @@ def cum_score(name, **kwargs):
     pylab.figure()
     pylab.plot(range(11), scores)
     pylab.xlabel('Error Level (year)')
-    pylab.ylabel('Cumulative Score (\%)')
+    pylab.ylabel('Cumulative Score (%)')
     pylab.show()
     pylab.savefig(name)
 

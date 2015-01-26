@@ -3,6 +3,7 @@ from utils import *
 from plotting import *
 from joblib import Parallel, delayed
 from sklearn import grid_search, svm
+from sklearn.cross_validation import KFold
 
 
 def validate(x, y, estimator, ind, i, evel_func):
@@ -22,8 +23,8 @@ def validate(x, y, estimator, ind, i, evel_func):
         train_idx = [j for j in range(len(x)) if not ind[j] == i]
         test_idx = [j for j in range(len(x)) if ind[j] == i]
     else:
-        train_idx = [j for j in range(len(x)) if not j == i]
-        test_idx = i
+        train_idx = i[0]
+        test_idx = i[1]
 
     # Train Estimator
     estimator.fit(x[train_idx], y[train_idx])
@@ -32,10 +33,9 @@ def validate(x, y, estimator, ind, i, evel_func):
     return evel_func(estimator, x[test_idx], y[test_idx])
 
 
-def group_class_lopo(x, y, ind, **kwargs):
+def group_class_lopo(x, y, ind, age_bins, **kwargs):
     print 'Age group Classification ...'
     # Get group labels
-    age_bins = [15, 40, 100]
     y_gr = group_y(y, age_bins)
 
     # Parameter Search
@@ -45,6 +45,10 @@ def group_class_lopo(x, y, ind, **kwargs):
     best_std = 0
     best_param = []
     best_model = []
+    n_folds = kwargs['n_folds'] if 'n_folds' in kwargs else 10
+    n_jobs = kwargs['n_jobs'] if 'n_jobs' in kwargs else 4
+    verbose = kwargs['verbose'] if 'verbose' in kwargs else 5
+
     for c in c_param:
         time_el = time.time()
         # Create estimator instance
@@ -52,9 +56,10 @@ def group_class_lopo(x, y, ind, **kwargs):
 
         # Leave One Person Out (LOPO)
         if len(ind) > 0:
-            acc = Parallel(n_jobs=8, verbose=5)(delayed(validate)(x, y_gr, svc, ind, i, acc_score) for i in set(ind))
+            acc = Parallel(n_jobs=n_jobs, verbose=verbose)(delayed(validate)(x, y_gr, svc, ind, i, acc_score) for i in set(ind))
         else:
-            acc = Parallel(n_jobs=8, verbose=5)(delayed(validate)(x, y_gr, svc, ind, i, acc_score) for i in range(len(x)))
+            kf = KFold(len(x), n_folds=n_folds)
+            acc = Parallel(n_jobs=n_jobs, verbose=verbose)(delayed(validate)(x, y_gr, svc, ind, i, acc_score) for i in kf)
 
         if not np.mean(acc) <= best_acc:
             best_acc = np.mean(acc)
@@ -83,6 +88,11 @@ def reg_group_lopo(x, y, ind, rang, **kwargs):
     best_std = 0
     best_param = []
     best_model = []
+
+    n_folds = kwargs['n_folds'] if 'n_folds' in kwargs else 10
+    n_jobs = kwargs['n_jobs'] if 'n_jobs' in kwargs else 4
+    verbose = kwargs['verbose'] if 'verbose' in kwargs else 5
+
     for c, g in zip(gamma.reshape(-1), c_param.reshape(-1)):
         time_el = time.time()
         # Create estimator instance
@@ -90,9 +100,10 @@ def reg_group_lopo(x, y, ind, rang, **kwargs):
 
         # Leave One Person Out (LOPO)
         if len(ind) > 0:
-            mae = Parallel(n_jobs=8, verbose=5)(delayed(validate)(x, y, svr, ind, i, mae_score) for i in set(ind))
+            mae = Parallel(n_jobs=n_jobs, verbose=verbose)(delayed(validate)(x, y, svr, ind, i, mae_score) for i in set(ind))
         else:
-            mae = Parallel(n_jobs=8, verbose=5)(delayed(validate)(x, y, svr, ind, i, mae_score) for i in range(len(x)))
+            kf = KFold(len(x), n_folds=n_folds)
+            mae = Parallel(n_jobs=n_jobs, verbose=verbose)(delayed(validate)(x, y, svr, ind, i, mae_score) for i in kf)
 
         if not np.mean(mae) >= best_mae:
             best_mae = np.mean(mae)

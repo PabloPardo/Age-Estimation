@@ -40,7 +40,7 @@ def mae_score_(y, y_):
 
 def cum_score_(y, y_):
     err = np.absolute(np.subtract(y, y_))
-    return [np.mean([e for e in err if e >= i])*100 for i in range(0, 11)]
+    return [sum([1 for e in err if e <= i])*100/float(len(err)) for i in range(0, 11)]
 
 
 def acc_score(est, x, y):
@@ -53,10 +53,7 @@ def acc_score(est, x, y):
     :return: Accuracy
     """
     y_ = est.predict(x)
-    if type(y) == list:
-        return sum([1 for i in range(len(y_)) if y_[i] == y[i]])/float(len(y_))
-    else:
-        return sum([1 for i in range(len(y_)) if y_[i] == y])
+    return sum([1 for i in range(len(y_)) if y_[i] == y[i]])/float(len(y_))
 
 
 def do_pca(x, var, name):
