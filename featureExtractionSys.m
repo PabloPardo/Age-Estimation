@@ -94,4 +94,4 @@ X(:,listPtr:end,:) = [];
 % save('data/FGNET_X', 'X');
 % save('data/X', 'X');
 % save('data/Y', 'Y');
-save('data/HuPBA_X', 'X');
+save('data/HuPBA/HuPBA_X', 'X');

@@ -8,7 +8,7 @@ sys.stdout = codecs.getwriter('utf-8')(sys.stdout)
 
 # Load data
 dataset_name = 'HuPBA'
-x, y, shapes, gender, ind = load_data(dataset_name=dataset_name, type_label='apparent')
+x, y, shapes, gender, ind = load_data(dataset_name=dataset_name, type_label='real')
 
 # train_methodology = 'Leave One Person Out'
 train_methodology = '10-Fold Cross Validation'
@@ -50,7 +50,7 @@ for train_idx, test_idx in kf:
                                                                       n_folds=n_folds,
                                                                       n_jobs=n_jobs,
                                                                       verbose=verbose,
-                                                                      c=np.array(range(100, 200, 5))/1000.0)
+                                                                      c=np.array(range(1, 200, 10))/1000.0)
     t = time.time() - t
     print u'Best Accuracy: {0} \u00B1 {1}\nBest Param: {2}\nTime: {3}'.format(class_acc, class_std, class_param, t)
 
@@ -64,8 +64,8 @@ for train_idx, test_idx in kf:
                                                                         n_jobs=n_jobs,
                                                                         verbose=verbose,
                                                                         rang=[0, 21],
-                                                                        gamma=np.array(range(5, 15, 2))/100.0,
-                                                                        c=np.array(range(5, 15, 2))/100.0)
+                                                                        gamma=np.array(range(1, 100, 5))/100.0,
+                                                                        c=np.array(range(1, 100, 5))/100.0)
     t = time.time() - t
     print u'Best MAE: {0} \u00B1 {1}\nBest Params: {2}\nTime: {3}'.format(reg_yg_mae, reg_yg_std, reg_yg_param, t)
 
@@ -78,8 +78,8 @@ for train_idx, test_idx in kf:
                                                                         n_jobs=n_jobs,
                                                                         verbose=verbose,
                                                                         rang=[11, 40],
-                                                                        gamma=np.array(range(50, 70, 2))/100.0,
-                                                                        c=np.array(range(5, 15, 2))/100.0)
+                                                                        gamma=np.array(range(1, 100, 5))/100.0,
+                                                                        c=np.array(range(1, 100, 5))/100.0)
     t = time.time() - t
     print u'Best MAE: {0} \u00B1 {1}\nBest Params: {2}\nTime: {3}'.format(reg_ya_mae, reg_ya_std, reg_ya_param, t)
 
@@ -92,8 +92,8 @@ for train_idx, test_idx in kf:
                                                                         n_jobs=n_jobs,
                                                                         verbose=verbose,
                                                                         rang=[30, 65],
-                                                                        gamma=np.array(range(65, 75, 2))/100.0,
-                                                                        c=np.array(range(5, 15, 2))/100.0)
+                                                                        gamma=np.array(range(1, 100, 5))/100.0,
+                                                                        c=np.array(range(1, 100, 5))/100.0)
     t = time.time() - t
     print u'Best MAE: {0} \u00B1 {1}\nBest Params: {2}\nTime: {3}'.format(reg_ma_mae, reg_ma_std, reg_ma_param, t)
 
@@ -106,8 +106,8 @@ for train_idx, test_idx in kf:
                                                                         n_jobs=n_jobs,
                                                                         verbose=verbose,
                                                                         rang=[55, 100],
-                                                                        gamma=np.array(range(65, 75, 2))/100.0,
-                                                                        c=np.array(range(5, 15, 2))/100.0)
+                                                                        gamma=np.array(range(1, 100, 5))/100.0,
+                                                                        c=np.array(range(1, 100, 5))/100.0)
     t = time.time() - t
     print u'Best MAE: {0} \u00B1 {1}\nBest Params: {2}\nTime: {3}'.format(reg_ol_mae, reg_ol_std, reg_ol_param, t)
 

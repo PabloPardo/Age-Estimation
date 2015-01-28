@@ -9,6 +9,7 @@ addpath(genpath('matlab-libraries/3000fps - custom'));
 %% LOAD SHAPE MODEL
 disp('Loading shape model ...');
 load('data/model68.mat');
+model = shapeRegressor;
 
 %% READ DATA
 disp('Reading data ...');
@@ -20,8 +21,6 @@ fileID = fopen([path 'HuPBA_AGE_data_extended.csv']);
 % path = '../../Databases/Aging DB/FGNET/';
 % fileID = fopen([path 'ages.csv']);
 
-% if exist('shapes.mat', 'file') == 2
-%     load('shapes.mat');                         % load data
 if exist('data/FGNssssET_shapes.mat', 'file') == 2
     load('data/FGNET_shapes.mat'); 
     BLOCK_SIZE = 2000;                          % initial capacity (& increment size)
@@ -29,6 +28,7 @@ if exist('data/FGNssssET_shapes.mat', 'file') == 2
     listPtr = size(shapes,3);                   % pointer to last free position
 %     Y = zeros(listSize);                        % Target
     Y = zeros(listSize, 2);                     % Target - HuPBA AGE
+    image = zeros(200,200,listSize);
 else
     BLOCK_SIZE = 2000;                          % initial capacity (& increment size)
     listSize = BLOCK_SIZE;                      % current list capacity
@@ -36,6 +36,7 @@ else
 %     Y = zeros(listSize);                        % Target
     Y = zeros(listSize, 2);                     % Target - HuPBA AGE
     listPtr = 1;                                % pointer to last free position
+    image = zeros(200,200,listSize);
 end
 
 margin = 20;    % Margin of the faces
@@ -49,8 +50,8 @@ while line~=-1
     % Store the age
 %     Y(listPtr) = str2double(c{2});      % FERET
 %     Y(listPtr) = str2double(c{1});      % FG-NET
-    Y(listPtr, 1) = str2double(c{4});   % HuPBA AGE - Real Age
-    Y(listPtr, 2) = str2double(c{5});   % HuPBA AGE - Apparet Age
+%     Y(listPtr, 1) = str2double(c{4});   % HuPBA AGE - Real Age
+%     Y(listPtr, 2) = str2double(c{5});   % HuPBA AGE - Apparet Age
     
     % Read the image
     if exist(['images/face_detect/' c{3}], 'file') == 2
@@ -75,10 +76,22 @@ while line~=-1
         
     % Crop the image by the found coordinates
 %     img = imresize(imcrop(img, face), [200,200]);
-    img = imresize(img, [200,200]);
+    image(:,:,listPtr) = imresize(img, [200,200]);
     
     %% Find facial landmarks
-    shape = fastFacealign_test(shapeRegressor, double(img)/255);
+    % Initialize shapes
+    initShapes = zeros(nLmks, 2, nInst, 'single');
+    for j = 1:nInst
+       rAngle = rand('single')*pi - pi/2;
+       rScale = 0.75 + rand('single')*0.5;
+       rC = cos(rAngle); rS = sin(rAngle);
+
+       initShapes(:,:,j) = bsxfun(@plus, bsxfun(@minus, model.meanShape, meanOff) * (rScale * [1 0 ; 0 1]), meanOff); % Rotation + scaling
+       initShapes(:,:,j) = bsxfun(@plus, initShapes(:,:,j), meanSize .* (rand(1,2)-0.5)*0.4); % Displacement
+    end
+    checkFaceAlignTrain(model, repmat(image, 1, 1, nInst), 'initialShapes', initShapes)
+           
+    shape = fastFacealign_test(model, double(img)/255);
     
     %% Align Face
     [rot_image, rot_shape] = alignface(img, 42, 48, 31, shape(:,:,1));     % FERET & HuPBA AGE

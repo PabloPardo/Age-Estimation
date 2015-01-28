@@ -10,11 +10,11 @@ addpath(genpath('matlab-libraries/libsvm-3.18/matlab'));
 % csvwrite('data/FGNET_Y.csv', Y);
 
 load('data/HuPBA/HuPBA_X.mat');
-% load('data/HuPBA/HuPBA_Y.mat');
-% load('data/HuPBA/HuPBA_shapes.mat')
-% csvwrite('data/HuPBA/HuPBA_shapes.csv', reshape(shapes, [size(shapes,1)*size(shapes,2)], size(shapes,3)));
+load('data/HuPBA/HuPBA_Y.mat');
+load('data/HuPBA/HuPBA_shapes.mat')
+csvwrite('data/HuPBA/HuPBA_shapes.csv', reshape(shapes, [size(shapes,1)*size(shapes,2)], size(shapes,3)));
 csvwrite('data/HuPBA/HuPBA_X.csv', X);
-% csvwrite('data/HuPBA/HuPBA_Y.csv', Y);
+csvwrite('data/HuPBA/HuPBA_Y.csv', Y);
 
 % Add shape coodinates to X features matrix
 shapes_vec = [];

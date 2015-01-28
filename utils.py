@@ -68,6 +68,7 @@ def do_pca(x, var, name):
     :param name: Name of the csv file to save
     :return: Projected data
     """
+    x = np.array([x_ for x_ in x if x_.std() > 0])
     x = x.transpose()
     x = (x - x.mean(axis=0))/x.std(axis=0)
 
@@ -130,7 +131,7 @@ def load_data(dataset_name, type_label='apparent'):
     else:
         ind = []
 
-    if not os.path.exists(path + dataset_name + '_pca_0.95_X.csv') and not os.path.exists(path + dataset_name + '_pca_0.95_shapes.csv'):
+    if not os.path.exists(path + dataset_name + '_pca_0.95_X.csv') or not os.path.exists(path + dataset_name + '_pca_0.95_shapes.csv'):
         x = np.genfromtxt(path + dataset_name + '_X.csv', delimiter=',')
         shapes = np.genfromtxt(path + dataset_name + '_shapes.csv', delimiter=',')
 

@@ -4,6 +4,7 @@ from plotting import *
 from joblib import Parallel, delayed
 from sklearn import grid_search, svm
 from sklearn.cross_validation import KFold
+from sklearn.ensemble import RandomForestClassifier
 
 
 def validate(x, y, estimator, ind, i, evel_func):
@@ -40,19 +41,21 @@ def group_class_lopo(x, y, ind, age_bins, **kwargs):
 
     # Parameter Search
     c_param = np.array(range(180, 200))/1000.0 if 'c' not in kwargs else kwargs['c']
+    # c_param = range(100, 1000, 100)
 
     best_acc = np.nan
     best_std = 0
     best_param = []
     best_model = []
     n_folds = kwargs['n_folds'] if 'n_folds' in kwargs else 10
-    n_jobs = kwargs['n_jobs'] if 'n_jobs' in kwargs else 4
+    n_jobs = kwargs['n_jobs'] if 'n_jobs' in kwargs else -1
     verbose = kwargs['verbose'] if 'verbose' in kwargs else 5
 
     for c in c_param:
         time_el = time.time()
         # Create estimator instance
         svc = svm.SVC(kernel='linear', C=c)
+        # rand_forest = RandomForestClassifier(oob_score=True, n_estimators=c, n_jobs=n_jobs)
 
         # Leave One Person Out (LOPO)
         if len(ind) > 0:
@@ -67,7 +70,7 @@ def group_class_lopo(x, y, ind, age_bins, **kwargs):
             best_param = c
             best_model = svc
         time_el = time.time() - time_el
-        print u'Param: C = {0} - Accuracy = {1} \u00B1 {2} - Best Acc. = {3} \u00B1 {4} - Time = {5}'.format(c, np.mean(acc), np.std(acc), best_acc, best_std, time_el)
+        # print u'Param: C = {0} - Accuracy = {1} \u00B1 {2} - Best Acc. = {3} \u00B1 {4} - Time = {5}'.format(c, np.mean(acc), np.std(acc), best_acc, best_std, time_el)
 
     best_model.fit(x, y_gr)
     return best_model, best_param, best_acc, best_std
@@ -111,7 +114,7 @@ def reg_group_lopo(x, y, ind, rang, **kwargs):
             best_param = [c, g]
             best_model = svr
         time_el = time.time() - time_el
-        print u'Params: (C = {0}, gamma = {1}) - MAE = {2} \u00B1 {3} - Best MAE = {4} \u00B1 {5} - Time = {6}'.format(c, g, np.mean(mae), np.std(mae), best_mae, best_std, time_el)
+        # print u'Params: (C = {0}, gamma = {1}) - MAE = {2} \u00B1 {3} - Best MAE = {4} \u00B1 {5} - Time = {6}'.format(c, g, np.mean(mae), np.std(mae), best_mae, best_std, time_el)
 
     best_model.fit(x, y)
     return best_model, best_param, best_mae, best_std

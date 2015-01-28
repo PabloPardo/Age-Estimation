@@ -1,0 +1,92 @@
+addpath(genpath('matlab-libraries/3000fps - custom'));
+
+% LOAD SHAPE MODEL
+disp('Loading shape model ...');
+load('data/model68.mat');
+model = shapeRegressor;
+
+%% READ DATA
+disp('Reading data ...');
+% HuPBA database
+path = '../../Databases/Aging DB/AGE HuPBA/';
+fileID = fopen([path 'HuPBA_AGE_data_extended.csv']);
+
+BLOCK_SIZE = 2000;                          % initial capacity (& increment size)
+listSize = BLOCK_SIZE;                      % current list capacity
+Y = zeros(listSize, 2);                     % Target - HuPBA AGE
+listPtr = 1;                                % pointer to last free position
+image = zeros(200,200,listSize);
+
+margin = 20;    % Margin of the faces
+
+line = fgetl(fileID);
+timerVal = tic();
+names = {};
+while line~=-1
+    c = strsplit(line, ',');
+    
+    % Store the age
+    Y(listPtr, 1) = str2double(c{4});   % HuPBA AGE - Real Age
+    Y(listPtr, 2) = str2double(c{5});   % HuPBA AGE - Apparet Age
+     
+    % Read the image
+    if exist(['images/face_detect/' c{3}], 'file') == 2
+        img = imread(['images/face_detect/' c{3}]);  % HuPBA AGE
+        disp(c{3});
+        names{listPtr} = c{3};
+    else
+        disp('Not finded');
+        line = fgetl(fileID);
+        toc(timerVal)
+        continue;
+    end
+       
+    % Crop the image by the found coordinates
+    image(:,:,listPtr) = imresize(img(:,:,1), [200,200]);
+    listPtr = listPtr + 1;
+    line = fgetl(fileID);
+end
+fclose(fileID);
+image(:,:,listPtr:end) = [];
+Y(listPtr:end,:) = [];
+nInst = size(image, 3);
+
+%% Find facial landmarks
+% Initialize shapes
+shapes = zeros(68,2,nInst);
+if exist('data/HuPBA/HuPBA_shape_all.mat', 'file') == 2
+    load('data/HuPBA/HuPBA_shape_all.mat');
+else
+    disp('Finding landmarks ...');
+    nLmks = 68;
+    nInit = 60;
+    meanOff  = mean(model.meanShape, 1);
+    meanSize = max(model.meanShape, [], 1) - min(model.meanShape, [], 1);
+
+    initShapes = zeros(nLmks, 2, nInit, 'single');
+    for j = 1:nInit
+       rScale = 0.9 + rand('single')*0.2;
+
+       initShapes(:,:,j) = bsxfun(@plus, bsxfun(@minus, model.meanShape, meanOff) * (rScale * eye(2)), meanOff); % Rotation + scaling
+       initShapes(:,:,j) = bsxfun(@plus, initShapes(:,:,j), meanSize .* (rand(1,2)-0.5)*0.2); % Displacement
+    end
+
+    shape = checkFaceAlignTrain(model, image, 'initialShapes', initShapes);
+    save('data/HuPBA/HuPBA_shape_all', 'shape');
+end
+
+for i = 1:nInst
+    img = image(:,:,i);
+    
+    % Align Face
+    [rot_image, rot_shape] = alignface(img, 42, 48, 31, shape(:,:,:,i));     % FERET & HuPBA AGE
+    shapes(:,:,i) = rot_shape;
+
+    % Save image
+    imwrite(rot_image, [path 'extended_aligned/' names{i}], 'png');                     % HuPBA AGE
+    fprintf('%i / %i\n', i, nInst);
+end
+toc(timerVal)
+
+save('data/HuPBA/HuPBA_shapes', 'shapes');    % HuPBA AGE  
+save('data/HuPBA/HuPBA_Y', 'Y');              % HuPBA AGE
