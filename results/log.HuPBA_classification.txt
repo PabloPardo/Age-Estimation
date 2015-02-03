@@ -1,0 +1,172 @@
+------------------- 10-Fold Cross Validation loop: 0/10 -------------------
+Training Age Classifier ...
+Best MAE: 0.77178902728 ± 0.00851130024452 - Best Params: 0.0101 - Time: 15.304350853
+
+
+-----------
+Test MAE: 15.2905405405 - Test mean MAE: 15.2905405405 ± 0.0 - time: 15.3480250835
+-----------
+------------------- 10-Fold Cross Validation loop: 1/10 -------------------
+Training Age Classifier ...
+Best MAE: 0.76942490642 ± 0.00659745873825 - Best Params: 0.0101 - Time: 14.995937109
+
+
+-----------
+Test MAE: 14.6148648649 - Test mean MAE: 14.9527027027 ± 0.337837837838 - time: 15.0397660732
+-----------
+------------------- 10-Fold Cross Validation loop: 2/10 -------------------
+Training Age Classifier ...
+Best MAE: 0.764804716076 ± 0.0120544323792 - Best Params: 0.0201 - Time: 15.1368021965
+
+
+-----------
+Test MAE: 14.8040540541 - Test mean MAE: 14.9031531532 ± 0.284604846828 - time: 15.1806468964
+-----------
+------------------- 10-Fold Cross Validation loop: 3/10 -------------------
+Training Age Classifier ...
+Best MAE: 0.764254341764 ± 0.0070822219445 - Best Params: 0.0201 - Time: 15.0451238155
+
+
+-----------
+Test MAE: 13.9121621622 - Test mean MAE: 14.6554054054 ± 0.4948603628 - time: 15.0881960392
+-----------
+------------------- 10-Fold Cross Validation loop: 4/10 -------------------
+Training Age Classifier ...
+Best MAE: 0.771035334089 ± 0.00878139077263 - Best Params: 0.0101 - Time: 15.2983560562
+
+
+-----------
+Test MAE: 14.0337837838 - Test mean MAE: 14.5310810811 ± 0.50767664257 - time: 15.3412530422
+-----------
+------------------- 10-Fold Cross Validation loop: 5/10 -------------------
+Training Age Classifier ...
+Best MAE: 0.7709118182 ± 0.00566918713763 - Best Params: 0.0201 - Time: 15.2423520088
+
+
+-----------
+Test MAE: 16.222972973 - Test mean MAE: 14.8130630631 ± 0.782527210595 - time: 15.2857780457
+-----------
+------------------- 10-Fold Cross Validation loop: 6/10 -------------------
+Training Age Classifier ...
+Best MAE: 0.763993575084 ± 0.00762220016024 - Best Params: 0.0201 - Time: 15.6679999828
+
+
+-----------
+Test MAE: 15.2244897959 - Test mean MAE: 14.8718383106 ± 0.738645793749 - time: 15.7125620842
+-----------
+------------------- 10-Fold Cross Validation loop: 7/10 -------------------
+Training Age Classifier ...
+Best MAE: 0.768005640671 ± 0.00719430558497 - Best Params: 0.0101 - Time: 15.5999138355
+
+
+-----------
+Test MAE: 14.9115646259 - Test mean MAE: 14.8768041 ± 0.691064773373 - time: 15.6430838108
+-----------
+------------------- 10-Fold Cross Validation loop: 8/10 -------------------
+Training Age Classifier ...
+Best MAE: 0.764972889884 ± 0.0197858118789 - Best Params: 0.0201 - Time: 15.9610500336
+
+
+-----------
+Test MAE: 13.2108843537 - Test mean MAE: 14.691701906 ± 0.835828754982 - time: 16.0051350594
+-----------
+------------------- 10-Fold Cross Validation loop: 9/10 -------------------
+Training Age Classifier ...
+Best MAE: 0.767287035477 ± 0.0124631695532 - Best Params: 0.0101 - Time: 15.810956955
+
+
+-----------
+Test MAE: 15.6870748299 - Test mean MAE: 14.7912391984 ± 0.847300295105 - time: 15.8543441296
+-----------
+
+
+-------- MAE = 14.7912391984 ± 0.847300295105 --------
+------------------- 10-Fold Cross Validation loop: 0/10 -------------------
+Training Age Classifier ...
+Best MAE: 0.766778982191 ± 0.00682178553084 - Best Params: 0.0101 - Time: 15.608686924
+
+
+-----------
+Test MAE: 14.4864864865 - Test mean MAE: 14.4864864865 ± 0.0 - time: 15.6509490013
+-----------
+------------------- 10-Fold Cross Validation loop: 1/10 -------------------
+Training Age Classifier ...
+Best MAE: 0.768139748668 ± 0.0151415836591 - Best Params: 0.0201 - Time: 15.8201341629
+
+
+-----------
+Test MAE: 13.6081081081 - Test mean MAE: 14.0472972973 ± 0.439189189189 - time: 15.860352993
+-----------
+------------------- 10-Fold Cross Validation loop: 2/10 -------------------
+Training Age Classifier ...
+Best MAE: 0.768531128183 ± 0.0117461463692 - Best Params: 0.0201 - Time: 15.8547821045
+
+
+-----------
+Test MAE: 13.3513513514 - Test mean MAE: 13.8153153153 ± 0.48602747782 - time: 15.8980038166
+-----------
+------------------- 10-Fold Cross Validation loop: 3/10 -------------------
+Training Age Classifier ...
+Best MAE: 0.762212399626 ± 0.0150913082647 - Best Params: 0.0101 - Time: 16.0283260345
+
+
+-----------
+Test MAE: 14.4391891892 - Test mean MAE: 13.9712837838 ± 0.500145500196 - time: 16.0729780197
+-----------
+------------------- 10-Fold Cross Validation loop: 4/10 -------------------
+Training Age Classifier ...
+Best MAE: 0.76306282229 ± 0.00330585776706 - Best Params: 0.0101 - Time: 15.8113598824
+
+
+-----------
+Test MAE: 14.1621621622 - Test mean MAE: 14.0094594595 ± 0.453812677154 - time: 15.8531420231
+-----------
+------------------- 10-Fold Cross Validation loop: 5/10 -------------------
+Training Age Classifier ...
+Best MAE: 0.770353705405 ± 0.0119208827021 - Best Params: 0.0201 - Time: 16.0465950966
+
+
+-----------
+Test MAE: 15.1891891892 - Test mean MAE: 14.2060810811 ± 0.604087685744 - time: 16.0892281532
+-----------
+------------------- 10-Fold Cross Validation loop: 6/10 -------------------
+Training Age Classifier ...
+Best MAE: 0.763817825657 ± 0.00672596781675 - Best Params: 0.0101 - Time: 15.8921627998
+
+
+-----------
+Test MAE: 12.6802721088 - Test mean MAE: 13.9881083708 ± 0.773215909142 - time: 15.9334509373
+-----------
+------------------- 10-Fold Cross Validation loop: 7/10 -------------------
+Training Age Classifier ...
+Best MAE: 0.764320573364 ± 0.0135013248768 - Best Params: 0.0201 - Time: 15.9570031166
+
+
+-----------
+Test MAE: 13.0884353741 - Test mean MAE: 13.8756492462 ± 0.782086548782 - time: 15.9999918938
+-----------
+------------------- 10-Fold Cross Validation loop: 8/10 -------------------
+Training Age Classifier ...
+Best MAE: 0.764040234575 ± 0.00685883567716 - Best Params: 0.0301 - Time: 16.3185939789
+
+
+-----------
+Test MAE: 14.6734693878 - Test mean MAE: 13.9642959286 ± 0.778821604725 - time: 16.362924099
+-----------
+------------------- 10-Fold Cross Validation loop: 9/10 -------------------
+Training Age Classifier ...
+Best MAE: 0.767902161019 ± 0.00803955311804 - Best Params: 0.0201 - Time: 16.185781002
+
+
+-----------
+Test MAE: 13.2448979592 - Test mean MAE: 13.8923561316 ± 0.769730337353 - time: 16.2291150093
+-----------
+
+
+-------- MAE = 13.8923561316 ± 0.769730337353 --------
+
+REAL AGE
+-------- MAE = 14.7912391984 ± 0.847300295105 --------
+
+APPARENT AGE
+-------- MAE = 13.8923561316 ± 0.769730337353 --------

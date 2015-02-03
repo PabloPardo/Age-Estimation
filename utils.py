@@ -12,12 +12,10 @@ def group_y(y, groups):
     """
     y_ = []
     for i in y:
-        num_g = 0
-        for g in groups:
-            if i < g:
-                y_.append(int(num_g))
+        for j in range(len(groups) - 1):
+            if groups[j] < i <= groups[j+1]:
+                y_.append(j)
                 break
-            num_g += 1
     return np.array(y_)
 
 
@@ -40,7 +38,7 @@ def mae_score_(y, y_):
 
 def cum_score_(y, y_):
     err = np.absolute(np.subtract(y, y_))
-    return [sum([1 for e in err if e <= i])*100/float(len(err)) for i in range(0, 11)]
+    return [(1 - sum([1 for e in err if e >= i])/float(len(err)))*100 for i in range(0, 26)]
 
 
 def acc_score(est, x, y):
@@ -54,6 +52,27 @@ def acc_score(est, x, y):
     """
     y_ = est.predict(x)
     return sum([1 for i in range(len(y_)) if y_[i] == y[i]])/float(len(y_))
+
+
+def acc_score_(y, y_):
+    """
+    Calculate the Accuracy
+
+    :param y: Targets 1
+    :param y_: Targets 2
+    :return: Accuracy
+    """
+    return sum([1 for i in range(len(y_)) if y_[i] == y[i]])/float(len(y_))
+
+
+def perf_score(est, x, y):
+    y_ = est.predict(x)
+
+    return sum([1 - abs(y_[i] - y[i])/float(len(set(y))) for i in range(len(y))]) / float(len(x))
+
+
+def perf_score_(y, y_):
+    return sum([1 - abs(y_[i] - y[i])/float(len(set(y))) for i in range(len(y))]) / float(len(y))
 
 
 def do_pca(x, var, name):
@@ -118,6 +137,9 @@ def load_data(dataset_name, type_label='apparent'):
         y = y[:, 0]
     elif type_label == 'apparent':
         y = y[:, 1]
+    elif type_label == 'both':
+        y_idx = y[:, 0] != 0
+        y = y[y_idx]
     else:
         raise NameError('The type of label must be "real" or "apparent"')
 
@@ -133,6 +155,8 @@ def load_data(dataset_name, type_label='apparent'):
 
     if not os.path.exists(path + dataset_name + '_pca_0.95_X.csv') or not os.path.exists(path + dataset_name + '_pca_0.95_shapes.csv'):
         x = np.genfromtxt(path + dataset_name + '_X.csv', delimiter=',')
+        if type_label == 'both':
+            x = x[y_idx]
         shapes = np.genfromtxt(path + dataset_name + '_shapes.csv', delimiter=',')
 
         # Normalize and dimensionality reduction

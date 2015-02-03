@@ -40,53 +40,62 @@ with open(path_new_fl, 'w') as f:
         l = content[i]
         aux = l.split(',')
 
-        if aux[0] in votes_hist and int(aux[-2]) == 1:
+        if aux[0] in votes_hist and int(aux[-2]) == 1 and int(aux[3]) > 0:
             real_age.append(int(aux[3]))
             apparent_age.append(round(np.mean(votes_hist[aux[0]])))
             im = aux[2].decode('latin_1')
 
-            # Rename the image in the csv and write it
-            new_name = 'image_%s.png' % i
-            aux[2] = new_name
-            aux[4] = str(apparent_age[-1])
-            new_l = ','.join(aux)
-            f.write(new_l)
-
-            # Add the specular image in the csv
-            new_name_spec = 'image_%s_spec.png' % i
-            aux[2] = new_name_spec
-            new_l_spec = ','.join(aux)
-            f.write(new_l_spec)
-
-            # Convert the image into PNG if its not
-            aux2 = im.split('.')
-            if aux2[-1] != 'png':
-                aux2[-1] = 'png'
-                im = '.'.join(aux2)
-
-            # Load Image and convert it to GrayScale and save it
-            I = Image.open(path_db + im).convert('LA')
-            I.save(path_db_ext + new_name)
-
-            # Flip image and save it
-            I_spec = I.transpose(Image.FLIP_LEFT_RIGHT)
-            I_spec.save(path_db_ext + new_name_spec)
-
-            print new_name
+            # # Rename the image in the csv and write it
+            # new_name = 'image_%s.png' % i
+            # aux[2] = new_name
+            # aux[4] = str(apparent_age[-1])
+            # new_l = ','.join(aux)
+            # f.write(new_l)
+            #
+            # # Add the specular image in the csv
+            # new_name_spec = 'image_%s_spec.png' % i
+            # aux[2] = new_name_spec
+            # new_l_spec = ','.join(aux)
+            # f.write(new_l_spec)
+            #
+            # # Convert the image into PNG if its not
+            # aux2 = im.split('.')
+            # if aux2[-1] != 'png':
+            #     aux2[-1] = 'png'
+            #     im = '.'.join(aux2)
+            #
+            # # Load Image and convert it to GrayScale and save it
+            # I = Image.open(path_db + im).convert('LA')
+            # I.save(path_db_ext + new_name)
+            #
+            # # Flip image and save it
+            # I_spec = I.transpose(Image.FLIP_LEFT_RIGHT)
+            # I_spec.save(path_db_ext + new_name_spec)
+            #
+            # print new_name
 
 import matplotlib.pyplot as plt
 
-hist, bins = np.histogram(real_age, bins=max(real_age))
-width = 0.7 * (bins[1] - bins[0])
-center = (bins[:-1] + bins[1:]) / 2
-plt.bar(center, hist, align='center', width=width)
-plt.title('Real Age Distribution')
-plt.show()
+# hist, bins = np.histogram(real_age, bins=max(real_age))
+# width = 0.7 * (bins[1] - bins[0])
+# center = (bins[:-1] + bins[1:]) / 2
+# plt.bar(center, hist, align='center', width=width)
+# plt.title('Real Age Distribution')
+# plt.show()
+#
+#
+# hist, bins = np.histogram(apparent_age, bins=max(apparent_age))
+# width = 0.7 * (bins[1] - bins[0])
+# center = (bins[:-1] + bins[1:]) / 2
+# plt.bar(center, hist, align='center', width=width)
+# plt.title('Apparent Age Distribution')
+# plt.show()
 
-
-hist, bins = np.histogram(apparent_age, bins=max(apparent_age))
-width = 0.7 * (bins[1] - bins[0])
-center = (bins[:-1] + bins[1:]) / 2
-plt.bar(center, hist, align='center', width=width)
-plt.title('Apparent Age Distribution')
+bins = np.linspace(0, 100, 100)
+plt.hist(real_age, bins, alpha=0.5, label='Real Age Distribution')
+plt.hist(apparent_age, bins, alpha=0.5, label='Apparent Age Distribution')
+plt.legend(loc='upper right')
+plt.xlabel('Age')
+plt.ylabel('Number of Individuals')
+plt.savefig('images/HuPBAdistribution.png', bbox_inches='tight')
 plt.show()

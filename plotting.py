@@ -1,7 +1,6 @@
 import matplotlib.cm as cm
 import pylab
 import numpy as np
-from utils import cum_score_
 from pandas.tools.plotting import scatter_matrix
 
 
@@ -17,7 +16,7 @@ def scatter_mat(x, y, fig_sz, diag, name, **kwargs):
     :return:
     """
     if not kwargs:
-        kwargs = {'s': 30*np.ones(y.shape), 'c': y.values, 'cmap': cm.gist_stern}
+        kwargs = {'s': 30*np.ones(y.shape), 'c': y, 'cmap': cm.gist_stern}
 
     pylab.clf()
     scatter_matrix(x, alpha=1, figsize=(fig_sz, fig_sz), diagonal=diag, **kwargs)
@@ -39,22 +38,20 @@ def age_dist(y, n_bins, name):
     return [n, bins, patches]
 
 
-def cum_score(name, **kwargs):
+def cum_score(name, *args, **kwargs):
     """
     Plots the Cumulative Score for the labels y and the prediction y_
 
     :return: Cumulative Score
     """
-    if 'y' in kwargs and 'y_' in kwargs:
-        y = kwargs['y']
-        y_ = kwargs['y_']
-    scores = kwargs['cum_score'] if 'cum_score' in kwargs else cum_score_(y, y_)
 
     pylab.figure()
-    pylab.plot(range(11), scores)
+    for arg in args:
+        pylab.plot(range(26), arg,  linestyle='-', marker='o')
     pylab.xlabel('Error Level (year)')
     pylab.ylabel('Cumulative Score (%)')
-    pylab.show()
-    pylab.savefig(name)
-
-    return scores
+    pylab.ylim((0, 100))
+    if 'legend' in kwargs:
+        pylab.legend(kwargs['legend'])
+    pylab.grid()
+    pylab.savefig(name, bbox_inches='tight')

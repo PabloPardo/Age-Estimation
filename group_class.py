@@ -1,9 +1,10 @@
+from __future__ import print_function
 import time
 from utils import *
 from plotting import *
 from joblib import Parallel, delayed
 from sklearn import grid_search, svm
-from sklearn.cross_validation import KFold
+from sklearn.cross_validation import StratifiedKFold, KFold
 from sklearn.ensemble import RandomForestClassifier
 
 
@@ -35,13 +36,13 @@ def validate(x, y, estimator, ind, i, evel_func):
 
 
 def group_class_lopo(x, y, ind, age_bins, **kwargs):
-    print 'Age group Classification ...'
     # Get group labels
     y_gr = group_y(y, age_bins)
 
     # Parameter Search
-    c_param = np.array(range(180, 200))/1000.0 if 'c' not in kwargs else kwargs['c']
-    # c_param = range(100, 1000, 100)
+    kernel = 'linear' if 'kernel' not in kwargs else kwargs['kernel']
+    c_param = np.array(range(1, 100))/100.0 if 'c' not in kwargs else kwargs['c']
+    gamma = [] if 'gamma' not in kwargs else kwargs['gamma']
 
     best_acc = np.nan
     best_std = 0
@@ -49,28 +50,42 @@ def group_class_lopo(x, y, ind, age_bins, **kwargs):
     best_model = []
     n_folds = kwargs['n_folds'] if 'n_folds' in kwargs else 10
     n_jobs = kwargs['n_jobs'] if 'n_jobs' in kwargs else -1
-    verbose = kwargs['verbose'] if 'verbose' in kwargs else 5
+    verbose = kwargs['verbose'] if 'verbose' in kwargs else 0
+    verboseprint = print if verbose else lambda *a, **k: None
+    verbose -= 1 if verbose > 0 else 0
 
-    for c in c_param:
+    if gamma:
+        params = map(lambda x: x.reshape(-1), np.meshgrid(c_param, gamma))
+        params = zip(params[0], params[1])
+    else:
+        params = c_param
+
+    for p in params:
+        if type(p) is tuple:
+            c, g = p
+        else:
+            c = p
+            g = 1
+
         time_el = time.time()
         # Create estimator instance
-        svc = svm.SVC(kernel='linear', C=c)
+        svc = svm.SVC(kernel=kernel, C=c, gamma=g)
         # rand_forest = RandomForestClassifier(oob_score=True, n_estimators=c, n_jobs=n_jobs)
 
         # Leave One Person Out (LOPO)
         if len(ind) > 0:
-            acc = Parallel(n_jobs=n_jobs, verbose=verbose)(delayed(validate)(x, y_gr, svc, ind, i, acc_score) for i in set(ind))
+            acc = Parallel(n_jobs=n_jobs, verbose=verbose)(delayed(validate)(x, y_gr, svc, ind, i, perf_score) for i in set(ind))
         else:
-            kf = KFold(len(x), n_folds=n_folds)
-            acc = Parallel(n_jobs=n_jobs, verbose=verbose)(delayed(validate)(x, y_gr, svc, ind, i, acc_score) for i in kf)
+            kf = KFold(len(y_gr), n_folds=n_folds, shuffle=True)
+            acc = Parallel(n_jobs=n_jobs, verbose=verbose)(delayed(validate)(x, y_gr, svc, ind, i, perf_score) for i in kf)
 
         if not np.mean(acc) <= best_acc:
             best_acc = np.mean(acc)
             best_std = np.std(acc)
-            best_param = c
+            best_param = {'c': c, 'gamma': g}
             best_model = svc
         time_el = time.time() - time_el
-        # print u'Param: C = {0} - Accuracy = {1} \u00B1 {2} - Best Acc. = {3} \u00B1 {4} - Time = {5}'.format(c, np.mean(acc), np.std(acc), best_acc, best_std, time_el)
+        verboseprint(u'Param: {0} - Score = {1} \u00B1 {2} - Best Score = {3} \u00B1 {4} - Time = {5}'.format(p, np.mean(acc), np.std(acc), best_acc, best_std, time_el))
 
     best_model.fit(x, y_gr)
     return best_model, best_param, best_acc, best_std
@@ -93,8 +108,10 @@ def reg_group_lopo(x, y, ind, rang, **kwargs):
     best_model = []
 
     n_folds = kwargs['n_folds'] if 'n_folds' in kwargs else 10
-    n_jobs = kwargs['n_jobs'] if 'n_jobs' in kwargs else 4
-    verbose = kwargs['verbose'] if 'verbose' in kwargs else 5
+    n_jobs = kwargs['n_jobs'] if 'n_jobs' in kwargs else -1
+    verbose = kwargs['verbose'] if 'verbose' in kwargs else 0
+    verboseprint = print if verbose else lambda *a, **k: None
+    verbose -= 1 if verbose > 0 else 0
 
     for c, g in zip(gamma.reshape(-1), c_param.reshape(-1)):
         time_el = time.time()
@@ -105,7 +122,7 @@ def reg_group_lopo(x, y, ind, rang, **kwargs):
         if len(ind) > 0:
             mae = Parallel(n_jobs=n_jobs, verbose=verbose)(delayed(validate)(x, y, svr, ind, i, mae_score) for i in set(ind))
         else:
-            kf = KFold(len(x), n_folds=n_folds)
+            kf = KFold(len(y), n_folds=n_folds, shuffle=True)
             mae = Parallel(n_jobs=n_jobs, verbose=verbose)(delayed(validate)(x, y, svr, ind, i, mae_score) for i in kf)
 
         if not np.mean(mae) >= best_mae:
@@ -114,7 +131,7 @@ def reg_group_lopo(x, y, ind, rang, **kwargs):
             best_param = [c, g]
             best_model = svr
         time_el = time.time() - time_el
-        # print u'Params: (C = {0}, gamma = {1}) - MAE = {2} \u00B1 {3} - Best MAE = {4} \u00B1 {5} - Time = {6}'.format(c, g, np.mean(mae), np.std(mae), best_mae, best_std, time_el)
+        verboseprint(u'Params: (C = {0}, gamma = {1}) - MAE = {2} \u00B1 {3} - Best MAE = {4} \u00B1 {5} - Time = {6}'.format(c, g, np.mean(mae), np.std(mae), best_mae, best_std, time_el))
 
     best_model.fit(x, y)
     return best_model, best_param, best_mae, best_std
